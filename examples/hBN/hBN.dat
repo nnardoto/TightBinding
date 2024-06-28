@@ -1,0 +1,15 @@
+###################################################################
+###                  TightBinding.x input example               ###
+###################################################################
+dftCode            openmx
+natoms             2
+NeighborsCells     3
+Dimensions         2
+HamiltonianFile    H.dat 
+OverlapFile        S.dat 
+CellFile           Cell.inp
+AtomsFile          Atoms.inp
+BasisFile          BasisSet.inp
+KPathFile          KPath.inp
+nPath              3
+ExportFormat       xatu_hdf5

@@ -26,15 +26,6 @@ void TightBinding::Load(string FileName)
   FockCount();
   LoadFock();
   LoadOverlap();
-
-  for(int i = 0; i < FockNumber; i++)
-  {
-    cout << "======================================================" << endl;
-    cout << aIndex[i][0] << ' ' << aIndex[i][1] << ' ' << aIndex[i][2] << endl; 
-    
-    cout << Overlap[i];
-    cout << "======================================================" << endl;
-  }
 }
 
 int TightBinding::Index(int i, int j, int k)

@@ -12,46 +12,33 @@ arma::vec TightBinding::BandCalc(double k1, double k2, double k3)
                                                                                                                              
   arma::cx_mat H, S;                                                                                                         
                                                                                                                              
-  arma::vec k = arma::vec();                                                                                                 
-  arma::vec r = arma::vec();                                                                                                 
-                                                                                                                             
-                                                                                                                             
   double h = 0.0;                                                                                                            
   int l, m, n;                                                                                                               
                                                                                                                              
-  int Index = 0;                                                                                                             
-  for(int i = -1; i <= 1; i++)                                                                                               
-  {                                                                                                                          
-    for(int j = -1; j <=1; j++)                                                                                              
+  for(int i = 0; i < FockNumber; i++)
     {                                                                                                                        
-      l = Rn[Index][0];                                                                                                      
-      m = Rn[Index][1];                                                                                                      
-      n = Rn[Index][2];                                                                                                      
+      l = aIndex[i][0];                                                                                                      
+      m = aIndex[i][1];                                                                                                      
+      n = aIndex[i][2];                                                                                                      
+                                                  
+      // k cdot R
+      h = k1*l + k2*m + k3*n;                                                                                                
+                                                                                                                             
+      H1 += FockMatrices[i] * cos(2.0 * PI* h);                                                                          
+      H2 += FockMatrices[i] * sin(2.0 * PI* h);                                                                          
+    }                                                                                                                        
+                                                                                                                             
+    for(int i = -1; i <= FockNumber; i++)                                                                                             
+    {                                                                                                                        
+      l = aIndex[i][0];                                                                                                      
+      m = aIndex[i][1];                                                                                                      
+      n = aIndex[i][2];                                                                                                      
                                                                                                                              
       h = k1*l + k2*m + k3*n;                                                                                                
                                                                                                                              
-      H1 += FockMatrices[Index] * cos(2.0 * PI* h);                                                                          
-      H2 += FockMatrices[Index] * sin(2.0 * PI* h);                                                                          
-      Index += 1;                                                                                                            
+      S1 += Overlap[i] * cos(2.0*PI*h);                                                                                  
+      S2 += Overlap[i] * sin(2.0*PI*h);                                                                                  
     }                                                                                                                        
-  }                                                                                                                          
-                                                                                                                             
-  Index = 0;                                                                                                                 
-  for(int i = -1; i <= 1; i++)                                                                                               
-  {                                                                                                                          
-    for(int j = -1; j <= 1; j++)                                                                                             
-    {                                                                                                                        
-      l = Rn[Index][0];                                                                                                      
-      m = Rn[Index][1];                                                                                                      
-      n = Rn[Index][2];                                                                                                      
-                                                                                                                             
-      h = k1*l + k2*m + k3*n;                                                                                                
-                                                                                                                             
-      S1 += Overlap[Index] * cos(2.0*PI*h);                                                                                  
-      S2 += Overlap[Index] * sin(2.0*PI*h);                                                                                  
-      Index += 1;                                                                                                            
-    }                                                                                                                        
-  }                                                                                                                          
                                                                                                                              
   H = arma::cx_mat(H1, H2);                                                                                                  
   S = arma::cx_mat(S1, S2);                                                                                                  
@@ -61,4 +48,21 @@ arma::vec TightBinding::BandCalc(double k1, double k2, double k3)
   EigVal = arma::eig_sym(S*H*S);                                                                                             
                                                                                                                              
   return EigVal;                                                                                                             
-}                                                                                                                            
+}
+                                                                                 
+arma::mat TightBinding::PathCalc(arma::vec Origin, arma::vec Destination, int N) 
+{                                                                                
+  // Armazena estrutura de bandas em uma matriz                                  
+  arma::mat BandStructure(nOrbitals, N, arma::fill::zeros);                      
+  arma::vec step = (Destination - Origin)/N;                                     
+  arma::vec kp = Origin;                                                         
+                                                                                 
+  for(int i = 0; i <= N; i++)                                                    
+  {                                                                              
+    BandStructure.col(i) = BandCalc(0.0, 0.0, 0.0);                                  
+    kp += step;                                                                  
+  }                                                                              
+                                                                                 
+  return BandStructure;                                                          
+}                                                                                
+

@@ -11,10 +11,11 @@ using namespace std;
 class TightBinding
 {
   public:
-    arma::mat PathCalc(arma::vec Origin, arma::vec Destination, int N);
+    void PathCalc();
     void Export2Xatu();
     void Load(string FileName);
     map<string, string> Parser(string FileName);
+    arma::cx_mat GetH(double k1, double k2, double k3);
 
   private:
     arma::vec K[3];
@@ -23,7 +24,7 @@ class TightBinding
     // Used for indexing matrieces and vectors
     int **Map;
     int **aIndex;
-    
+    double UThr = 1.0E-13;   
 
 
     // Used for iterations

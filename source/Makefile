@@ -1,4 +1,4 @@
-	CPPFLAG = -std=c++11
+	CPPFLAG = -std=c++20
 LIBS = -larmadillo
 OBJS = BandCalc.o LoadModel.o Parser.o Export2Xatu.o
 

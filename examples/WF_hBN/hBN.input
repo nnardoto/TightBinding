@@ -1,0 +1,9 @@
+###################################################################
+###                  TightBinding.x input example               ###
+###################################################################
+IFormat            Wannier90
+HamiltonianFile    h-BN_tb.dat 
+KPathFile          KPath.inp
+nPath              3
+NeighBornsCells    8
+ExportFormat       xatu_model

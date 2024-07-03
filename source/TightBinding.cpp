@@ -13,7 +13,8 @@ int main(int argc, char **argv)
 
   // Carrega a partir de um Arquivo de Input
   Model.Load(argv[1]);                                     
-  Model.Export2Xatu();
+  //Model.Export2Xatu();
+  Model.PathCalc();
 
   return 0;                                                 
 }                                                           

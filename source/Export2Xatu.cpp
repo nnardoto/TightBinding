@@ -45,8 +45,6 @@ void TightBinding::Export2Xatu()
   {
     FockMatrices[i] = FockMatrices[i] * TOEV;
     FockMatrices[i].clean(UThr);
-    Overlap[i]      = Overlap[i] * TOEV;
-    Overlap[i].clean(UThr);
   }
 
   // Imprime Hamiltoniana
@@ -57,7 +55,7 @@ void TightBinding::Export2Xatu()
     {  
       for(int j = 0; j < nOrbitals; j++)
       {
-      cout << std::format("{: 11.8f} {: 11.8f}j    ", FockMatrices[HH](i,j), FockMatrices[HH](i,j)*0);
+      cout << std::format("{: 11.8f} {: 11.8f}j    ", FockMatrices[HH](i,j).real(), FockMatrices[HH](i,j).imag());
       }
       cout << endl; 
     } 
@@ -72,7 +70,7 @@ void TightBinding::Export2Xatu()
     {                                                                                                   
       for(int j = 0; j < nOrbitals; j++)                                                                
       {                                                                                                 
-      cout << std::format("{: 11.8f} {: 11.8f}j    ", Overlap[SS](i,j), Overlap[SS](i,j)*0);  
+      cout << std::format("{: 11.7f} {: 11.7f}j    ", Overlap[SS](i,j).real(), Overlap[SS](i,j).imag());  
       }                                                                                                 
       cout << endl;                                                                                     
     }                                                                                                   

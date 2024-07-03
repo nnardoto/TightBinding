@@ -4,13 +4,11 @@
 arma::cx_mat TightBinding::GetH(double k1, double k2, double k3)
 {
   // Calcula as Matrizes para um Dado ponto K (unidades de cristal)                        
-  arma::mat H1 = arma::mat(nOrbitals, nOrbitals, arma::fill::zeros);                       
-  arma::mat H2 = arma::mat(nOrbitals, nOrbitals, arma::fill::zeros);                       
-                                                                                           
-  arma::cx_mat H;                                                                    
+  arma::cx_mat H = arma::cx_mat(nOrbitals, nOrbitals, arma::fill::zeros);                       
                                                                                            
   double h = 0.0;                                                                          
-  int l, m, n;                                                                             
+  int l, m, n;
+  complex <double> Fase;
                                                                                            
   for(int i = 0; i < FockNumber; i++)                                                      
   {                                                                                        
@@ -18,38 +16,64 @@ arma::cx_mat TightBinding::GetH(double k1, double k2, double k3)
     m = aIndex[i][1];                                                                      
     n = aIndex[i][2];                                                                      
                                                                                            
-//      cout << l << ' ' << m << ' ' << n << endl;                                         
-                                                                                           
-      // k cdot R                                                                          
+    // k cdot R                                                                          
     h = k1*l + k2*m + k3*n;                                                                
-                                                                                           
-    H1 += FockMatrices[i] * cos(2.0 * PI* h);                                              
-    H2 += FockMatrices[i] * sin(2.0 * PI* h);                                              
+                                             
+    Fase = cos(2.0 * PI* h) + 2i * sin(2.0 * PI* h);  
+    H   += FockMatrices[i] * Fase;                                          
                                                                                            
   }                                                                                        
-                           
 
-  H = arma::cx_mat(H1, H2);
   H.clean(UThr);
                                                                                            
-                                                                                           
   return H;                                                                           
+}
+
+
+arma::vec TightBinding::WF_BandCalc(double k1, double k2, double k3)
+{
+  arma::cx_mat H = arma::cx_mat(nOrbitals, nOrbitals, arma::fill::zeros);
+
+  arma::vec EigVal;                                                                    
+                                                                                       
+  double h = 0.0;                                                                      
+  int l, m, n;
+  complex<double> Fase;
+                                                                                       
+  for(int i = 0; i < FockNumber; i++)                                                  
+  {                                                                                    
+    l = aIndex[i][0];                                                                  
+    m = aIndex[i][1];                                                                  
+    n = aIndex[i][2];                                                                  
+                                                                                       
+                                                                                       
+    // k cdot R                                                                      
+    h = k1*l + k2*m + k3*n;                                                            
+    Fase = cos(2.0 * PI * h) + 1i * sin(2.0 * PI * h);
+
+    H += FockMatrices[i] * Fase;                                          
+                                                                                       
+  }                                                                                    
+                                                                                       
+  H.clean(UThr);                                                
+                                                                                       
+  EigVal = arma::eig_sym(H);                                                       
+                                                                                       
+  return EigVal;                                                                       
 }
 
 arma::vec TightBinding::BandCalc(double k1, double k2, double k3)                                                            
 {                                                                                                                            
   // Calcula as Matrizes para um Dado ponto K (unidades de cristal)                                                          
-  arma::mat H1 = arma::mat(nOrbitals, nOrbitals, arma::fill::zeros);                                                                         
-  arma::mat H2 = arma::mat(nOrbitals, nOrbitals, arma::fill::zeros);                                                                         
-  arma::mat S1 = arma::mat(nOrbitals, nOrbitals, arma::fill::zeros);                                                                         
-  arma::mat S2 = arma::mat(nOrbitals, nOrbitals, arma::fill::zeros);                                                                         
+  arma::cx_mat H = arma::cx_mat(nOrbitals, nOrbitals, arma::fill::zeros);                                                                         
+  arma::cx_mat S = arma::cx_mat(nOrbitals, nOrbitals, arma::fill::zeros);                                                                         
                                                                                                                              
   arma::vec EigVal;                                                                                                          
                                                                                                                              
-  arma::cx_mat H, S;                                                                                                         
                                                                                                                              
   double h = 0.0;                                                                                                            
-  int l, m, n;                                                                                                               
+  int l, m, n;           
+  complex <double> Fase;
                                                                                                                              
   for(int i = 0; i < FockNumber; i++)
   {                                                                                                                        
@@ -61,17 +85,15 @@ arma::vec TightBinding::BandCalc(double k1, double k2, double k3)
       
       // k cdot R
     h = k1*l + k2*m + k3*n;                                                                                                
-                                                                                                                             
-    H1 += FockMatrices[i] * cos(2.0 * PI* h);                                                                          
-    H2 += FockMatrices[i] * sin(2.0 * PI* h);                                                                          
-      
-    S1 += Overlap[i] * cos(2.0*PI*h);   
-    S2 += Overlap[i] * sin(2.0*PI*h);   
+                        
+    Fase = cos(2.0 * PI * h) + 2i * sin(2.0 * PI * h);
+    H += FockMatrices[i] * Fase;                                                                          
+    S += Overlap[i]      * Fase;   
   }                                                                                                                        
                                                                                                                              
                                                                                                                              
-  H = arma::cx_mat(H1, H2).clean(UThr);                                                                                                  
-  S = arma::cx_mat(S1, S2).clean(UThr);                                                                                                  
+  H.clean(UThr);                                                                                                  
+  S.clean(UThr);                                                                                                  
 
   S = inv(sqrtmat(S));                                                                                                       
                                                                                                                              
@@ -134,7 +156,7 @@ void TightBinding::PathCalc()
 
     for(int j = 0; j < N[i]; j++)                                                    
     {        
-      BandStructure.col(column) = BandCalc(kp(0), kp(1), kp(2));                                  
+      BandStructure.col(column) = WF_BandCalc(kp(0), kp(1), kp(2));                                  
       kkp += norm(step);
       FullPath(column) = kkp;
       kp += step; 

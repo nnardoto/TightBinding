@@ -28,22 +28,31 @@ class TightBinding
 
 
     // Used for iterations
-    int FockNumber = 0;
-    int NeighborsCells;
-    int nOrbitals = 8;
+    int FockNumber      = 0;
+    int NeighborsCells  = 0;
+    int nOrbitals       = 8;
+    int WanN            = 0;
 
     // Store input Information
     map<string, string> InputDict;
+    void MakeMap(int Neighbors);
 
-    // Matrices 
-    arma::mat *FockMatrices;
-    arma::mat *Overlap;
+    // Matrices e Degenerecencia
+    arma::cx_mat *FockMatrices;
+    arma::cx_mat *Overlap;
+    arma::vec *Degen;
 
     // Private Mathods
     int Index(int i, int j, int k);
     void FockCount();
-    void LoadFock();    
-    void LoadOverlap(); 
-    arma::vec BandCalc(double k1, double k2, double k3);
+    void LoadFock();   
+    void LoadOverlap();
+    void WF_SkipHead(ifstream &iFile);
+    void OMX_Load();
+    void W90_Load();
+
+    void WF_LoadFock();
+    arma::vec    BandCalc(double k1, double k2, double k3);
+    arma::vec WF_BandCalc(double k1, double k2, double k3);
 };
 

@@ -1,7 +1,7 @@
 ###################################################################
 ###                  TightBinding.x input example               ###
 ###################################################################
-dftCode            openmx
+IFormat            openmx
 natoms             2
 NeighborsCells     3
 Dimensions         2

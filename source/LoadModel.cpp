@@ -45,6 +45,8 @@ void TightBinding::OMX_Load()
 {
   // Carrega Numero de Vizinhos do Input                              
   int N = stoi(InputDict["NeighborsCells"]);        
+  nOrbitals = stoi(InputDict["nOrbitals"]);
+  
   // Monta Mapa de Indices
   MakeMap(N);
 
@@ -53,6 +55,14 @@ void TightBinding::OMX_Load()
   FockCount();                                                                  
   LoadFock();                                                                   
   LoadOverlap();                                                                
+
+  // Carrega Degenerecencia
+  Degen = new int[FockNumber];
+  for(int i = 0; i < FockNumber; i++)
+  {
+    Degen[i] = 1;  
+  }
+
 }
 
 void TightBinding::WF_SkipHead(ifstream& iFile)
@@ -92,9 +102,9 @@ void TightBinding::W90_Load()
  
   w90File >> nOrbitals;
   w90File >> FockNumber;
-
-  int DD[FockNumber];
-  for(int h = 0; h < FockNumber; h++) w90File >> DD[h];
+  
+  Degen = new int[FockNumber];
+  for(int h = 0; h < FockNumber; h++) w90File >> Degen[h];
 
   // Aloca Memoria para as Matrizes                                         
   FockMatrices     = new arma::cx_mat[FockNumber];

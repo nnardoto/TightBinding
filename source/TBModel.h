@@ -28,6 +28,7 @@ class TightBinding
 
 
     // Used for iterations
+    int *Degen;
     int FockNumber       = 0;
     int NeighborsCells   = 0;
     int nOrbitals        = 0;
@@ -41,7 +42,6 @@ class TightBinding
     // Matrices e Degenerecencia
     arma::cx_mat *FockMatrices;
     arma::cx_mat *Overlap;
-    arma::vec *Degen;
 
     // Private Mathods
     int Index(int i, int j, int k);

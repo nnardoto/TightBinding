@@ -3,6 +3,7 @@
 ###################################################################
 IFormat            openmx
 natoms             2
+nOrbitals          8
 NeighborsCells     3
 Dimensions         2
 HamiltonianFile    H.dat 

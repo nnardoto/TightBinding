@@ -56,7 +56,7 @@ arma::vec TightBinding::BandCalc(double k1, double k2, double k3)
     
     if(OrthogonalBasis)
     {
-      H += FockMatrices[i] * Fase;
+      H += Degen[i]*FockMatrices[i] * Fase;
     } 
     else
     {
@@ -74,7 +74,7 @@ arma::vec TightBinding::BandCalc(double k1, double k2, double k3)
   }
   else
   {
-    cout << format("{} {} {}\n", k1, k2, k3);
+    //cout << format("{} {} {}\n", k1, k2, k3);
     S.clean(UThr);
     S      = arma::inv(sqrtmat(S));                                                                                                       
     EigVal = arma::eig_sym(S*H*S);                                                                                             

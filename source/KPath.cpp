@@ -57,14 +57,21 @@ void TightBinding::PathCalc()
     kp_ant = kk[i];                                                         
   }                                                                         
                                                                             
-  // Imprime Estrutura de Bandas                                            
+  // Imprime Estrutura de Bandas                                           
+  ofstream OutBand;
+  OutBand.open("Bands.dat");
+
+  cout << "==============================================\n\n";
+  cout << "============= KPATH CALCULATION ==============\n";
+  cout << "==============================================\n\n";
   for(int i = 0; i < nOrbitals; i++)                                        
   {                                                                         
     for(int j = 0; j < kpoints; j++)                                        
     {                                                                       
-    //  cout << FullPath(j) << "\t\t" << BandStructure.col(j)(i) << endl;     
+      OutBand << FullPath(j) << "\t\t" << BandStructure.col(j)(i) << endl;     
     }                                                                       
-    //cout << endl;                                                           
-  }                                                                         
+      OutBand << endl;                                                           
+  }                                                                        
+  OutBand.close();
 }                                                                           
                                                                             

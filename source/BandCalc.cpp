@@ -29,45 +29,12 @@ arma::cx_mat TightBinding::GetH(double k1, double k2, double k3)
   return H;                                                                           
 }
 
-
-arma::vec TightBinding::WF_BandCalc(double k1, double k2, double k3)
-{
-  arma::cx_mat H = arma::cx_mat(nOrbitals, nOrbitals, arma::fill::zeros);
-
-  arma::vec EigVal;                                                                    
-                                                                                       
-  double h = 0.0;                                                                      
-  int l, m, n;
-  complex<double> Fase;
-                                                                                       
-  for(int i = 0; i < FockNumber; i++)                                                  
-  {                                                                                    
-    l = aIndex[i][0];                                                                  
-    m = aIndex[i][1];                                                                  
-    n = aIndex[i][2];                                                                  
-                                                                                       
-                                                                                       
-    // k cdot R                                                                      
-    h = k1*l + k2*m + k3*n;                                                            
-    Fase = cos(2.0 * PI * h) + 1i * sin(2.0 * PI * h);
-
-    H += FockMatrices[i] * Fase;                                          
-                                                                                       
-  }                                                                                    
-                                                                                       
-  H.clean(UThr);                                                
-                                                                                       
-  EigVal = arma::eig_sym(H);                                                       
-                                                                                       
-  return EigVal;                                                                       
-}
-
 arma::vec TightBinding::BandCalc(double k1, double k2, double k3)                                                            
 {                                                                                                                            
   // Calcula as Matrizes para um Dado ponto K (unidades de cristal)                                                          
   arma::cx_mat H = arma::cx_mat(nOrbitals, nOrbitals, arma::fill::zeros);                                                                         
   arma::cx_mat S = arma::cx_mat(nOrbitals, nOrbitals, arma::fill::zeros);                                                                         
-                                                                                                                             
+
   arma::vec EigVal;                                                                                                          
                                                                                                                              
                                                                                                                              
@@ -81,99 +48,37 @@ arma::vec TightBinding::BandCalc(double k1, double k2, double k3)
     m = aIndex[i][1];                                                                                                      
     n = aIndex[i][2];                                                                                                      
                            
-//      cout << l << ' ' << m << ' ' << n << endl;
       
-      // k cdot R
+    // k cdot R
     h = k1*l + k2*m + k3*n;                                                                                                
                         
-    Fase = cos(2.0 * PI * h) + 2i * sin(2.0 * PI * h);
-    H += FockMatrices[i] * Fase;                                                                          
-    S += Overlap[i]      * Fase;   
-  }                                                                                                                        
+    Fase = cos(2.0 * PI * h) + 1i * sin(2.0 * PI * h);
+    
+    if(OrthogonalBasis)
+    {
+      H += FockMatrices[i] * Fase;
+    } 
+    else
+    {
+      H += FockMatrices[i] * Fase;
+      S += Overlap[i]      * Fase;   
+    }
+  }
                                                                                                                              
                                                                                                                              
-  H.clean(UThr);                                                                                                  
-  S.clean(UThr);                                                                                                  
+  H.clean(UThr);       
 
-  S = inv(sqrtmat(S));                                                                                                       
-                                                                                                                             
-  EigVal = arma::eig_sym(S*H*S);                                                                                             
-                                                                                                                             
+  if(OrthogonalBasis)
+  {
+    EigVal = arma::eig_sym(H);
+  }
+  else
+  {
+    cout << format("{} {} {}\n", k1, k2, k3);
+    S.clean(UThr);
+    S      = arma::inv(sqrtmat(S));                                                                                                       
+    EigVal = arma::eig_sym(S*H*S);                                                                                             
+  }
+  
   return EigVal;                                                                                                             
 }
-                                                                                 
-void TightBinding::PathCalc() 
-{                                                                                
-  // Lê Input para Montar Caminho
-  ifstream fp;
-  int nPath = stoi(InputDict["nPath"]);
-  
-  // Armazena Caminho
-  arma::vec k[nPath], kk[nPath];
-  for(int i = 0; i < nPath; i++)
-  {
-    k[i]  = arma::vec(3, arma::fill::zeros);
-    kk[i] = arma::vec(3, arma::fill::zeros);
-  }
-
-  // abre arquivo
-  fp.open(InputDict["KPathFile"]);
-
-  string HighA[nPath], HighB[nPath];
-  int N[nPath];
-  for(int i = 0; i < nPath; i++)
-  {
-    fp >> HighA[i] >>  k[i](0) >>  k[i](1) >>  k[i](2) 
-       >> HighB[i] >> kk[i](0) >> kk[i](1) >> kk[i](2) >> N[i];
-  }
-
-  fp.close();
-  // Armazena estrutura de bandas em uma matriz
-  int kpoints = 0;
-  for(int i = 0; i < nPath; i++)
-  {
-    kpoints += N[i];
-  }
-
-  arma::mat BandStructure(nOrbitals, kpoints, arma::fill::zeros);
-  arma::vec FullPath(kpoints, arma::fill::zeros);
-  arma::vec kp_ant(3, arma::fill::zeros);
-
-  int column = 0;
-  double kkp = 0.0;
-  kp_ant = k[0];
-  for(int i = 0; i < nPath; i++)
-  {
-    arma::vec step = (kk[i] - k[i])/(N[i]);                    
-    arma::vec kp = kp_ant;                                           
-
-   // cout << "========================\n";                     
-   // cout << "Start: " << k[i](0) << ' ' << k[i](1) << ' ' << k[i](2) << endl;
-   // cout << "kp: " << kp(0) << ' ' << kp(1) << ' ' << kp(2) << endl;
-   // cout << "step: " << step(0) << ' ' << step(1) << ' ' << step(2) << endl;
-   // cout << "End: " << kk[i](0) << ' ' << kk[i](1) << ' ' << kk[i](2) << endl;
-   // cout << "========================\n";                     
-
-    for(int j = 0; j < N[i]; j++)                                                    
-    {        
-      BandStructure.col(column) = WF_BandCalc(kp(0), kp(1), kp(2));                                  
-      kkp += norm(step);
-      FullPath(column) = kkp;
-      kp += step; 
-     // cout << kp.t();
-      column += 1;
-    }
-    kp_ant = kk[i];
-  }
-
-  // Imprime Estrutura de Bandas
-  for(int i = 0; i < nOrbitals; i++)
-  {
-    for(int j = 0; j < kpoints; j++)
-    {
-      cout << FullPath(j) << "\t\t" << BandStructure.col(j)(i) << endl;
-    }
-    cout << endl;
-  }
-}                                                                                
-

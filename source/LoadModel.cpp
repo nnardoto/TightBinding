@@ -7,8 +7,17 @@ void TightBinding::Load(string FileName)
 
   string IFormat = InputDict["IFormat"];
 
-       if(IFormat ==    "openmx") OMX_Load();
-  else if(IFormat == "Wannier90") W90_Load();
+  if(IFormat ==    "openmx") 
+  {
+    cout << "==============================================\n";
+    cout << "================ OPENMX MODE =================\n";
+    cout << "==============================================\n\n";
+    OMX_Load();
+  }
+  else if(IFormat == "Wannier90")
+  {
+    W90_Load();
+  }
 }
 
 
@@ -35,12 +44,12 @@ void TightBinding::MakeMap(int Neighbors)
 void TightBinding::OMX_Load()
 {
   // Carrega Numero de Vizinhos do Input                              
-  int N = stoi(InputDict["NeighborsCells"]);       
- 
+  int N = stoi(InputDict["NeighborsCells"]);        
   // Monta Mapa de Indices
   MakeMap(N);
 
-  // Load FockMatrices                                                          
+  // Load FockMatrices                             
+  OrthogonalBasis = false;
   FockCount();                                                                  
   LoadFock();                                                                   
   LoadOverlap();                                                                
@@ -57,9 +66,6 @@ void TightBinding::WF_SkipHead(ifstream& iFile)
                                                           
   iFile >> nOrbitals;                                   
   iFile >> FockNumber;                                  
-                                                          
-  cout << nOrbitals  << endl;                             
-  cout << FockNumber << endl;                             
                                                           
   int DD;                                     
   for(int h = 0; h < FockNumber; h++) iFile >> DD;   
@@ -86,9 +92,6 @@ void TightBinding::W90_Load()
  
   w90File >> nOrbitals;
   w90File >> FockNumber;
-
-  cout << nOrbitals  << endl;
-  cout << FockNumber << endl;
 
   int DD[FockNumber];
   for(int h = 0; h < FockNumber; h++) w90File >> DD[h];
@@ -228,11 +231,15 @@ void TightBinding::LoadFock()
 { 
   // Aloca Memoria para as Matrizes
   FockMatrices = new arma::cx_mat[FockNumber];                                                 
-                               
+                        
+  cout << "========= ALOCATION OF FOCK MATRICES =========\n";
   for(int i = 0; i < FockNumber; i++)                                                       
   {                             
+    cout << format("Alocation of {: 4d}/{: 4d} Fock Matrices", i + 1, FockNumber);
     FockMatrices[i] = arma::cx_mat(nOrbitals, nOrbitals, arma::fill::zeros);                          
+    cout << format(" ... ok\n");
   }                                                                                
+  cout << "==============================================\n\n";
                                                                                    
   ifstream Hamiltonian;
   Hamiltonian.open(InputDict["HamiltonianFile"]);
@@ -240,10 +247,13 @@ void TightBinding::LoadFock()
   int l, m, n, i, j;
   double U;
   
+  cout << "============ LOAD OF FOCK MATRICES ===========\n";
   while(Hamiltonian >> l >> m >> n >> i >> j >> U)
   {
     FockMatrices[Index(l, m, n)](i - 1, j - 1) = U;
   }
+  cout << format("{: 4d} Matrices Loaded\n", FockNumber);
+  cout << "==============================================\n\n";
 
   Hamiltonian.close();
 }                                                                                  
@@ -254,31 +264,29 @@ void TightBinding::LoadOverlap()
   // Aloca Memoria para as Matrizes                                                      
   Overlap = new arma::cx_mat[FockNumber];                                              
                                                                                          
+  cout << "======== ALOCATION OF OVERLAP MATRICES =======\n";
   for(int i = 0; i < FockNumber; i++)                                                    
   {                                                                                      
-    Overlap[i] = arma::cx_mat(nOrbitals, nOrbitals, arma::fill::zeros);                                
-  }                                                                                      
+    cout << format("Alocation of {: 4d}/{: 4d} Overlap Matrices", i + 1, FockNumber);
+    Overlap[i] = arma::cx_mat(nOrbitals, nOrbitals, arma::fill::zeros);
+    cout << format(" ... ok\n");
+  }                                                         
+  cout << "==============================================\n\n";
                                                                                          
   ifstream OLP;                                                                  
   OLP.open(InputDict["OverlapFile"]);                                        
                                                                                          
   int l, m, n, i, j;                                                                     
   double U;                                                                              
-                                                                                         
+                                      
+
+  cout << "========== LOAD OF OVERLAP MATRICES ==========\n";
   while(OLP >> l >> m >> n >> i >> j >> U)                                       
   {                                                                                      
     Overlap[Index(l, m, n)](i - 1, j - 1) = U;                                      
   }                                                                                      
-                                                                                         
-  OLP.close();                                                                   
-}
-
-void TightBinding::WF_LoadFock()
-{
-  if(InputDict["IFormat"] != "Wannier90")
-  {
-    cout << "Wrong usage of Wannier Version of Code\n";
-
-  }
+  cout << format("{: 4d} Matrices Loaded\n", FockNumber);
+  cout << "==============================================\n\n";
   
+  OLP.close();                                                                   
 }

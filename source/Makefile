@@ -1,6 +1,6 @@
 CPPFLAG = -std=c++23
 LIBS = -larmadillo
-OBJS = BandCalc.o LoadModel.o Parser.o Export2Xatu.o
+OBJS = BandCalc.o LoadModel.o Parser.o Export2Xatu.o KPath.o
 
 TightBinding.x: $(OBJS)
 	g++ TightBinding.cpp -o TightBinding.x $(OBJS) $(CPPFLAG) $(LIBS)
@@ -16,6 +16,9 @@ Parser.o:
 
 Export2Xatu.o:
 	g++ Export2Xatu.cpp -o Export2Xatu.o -c $(CPPFLAG) $(LIBS)
+
+KPath.o: BandCalc.o
+	g++ KPath.cpp -o KPath.o -c $(CPPFLAG) $(LIBS)
 
 clean:
 	rm *.x *.o

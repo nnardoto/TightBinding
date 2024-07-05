@@ -28,10 +28,11 @@ class TightBinding
 
 
     // Used for iterations
-    int FockNumber      = 0;
-    int NeighborsCells  = 0;
-    int nOrbitals       = 8;
-    int WanN            = 0;
+    int FockNumber       = 0;
+    int NeighborsCells   = 0;
+    int nOrbitals        = 0;
+    int WanN             = 0;
+    bool OrthogonalBasis = true;
 
     // Store input Information
     map<string, string> InputDict;

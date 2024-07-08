@@ -37,7 +37,10 @@ void TightBinding::PathCalc()
   arma::mat BandStructure(nOrbitals, kpoints, arma::fill::zeros);           
   arma::vec FullPath(kpoints, arma::fill::zeros);                           
   arma::vec kp_ant(3, arma::fill::zeros);                                   
-                                                                            
+
+  cout << "==============================================\n\n";
+  cout << "============= KPATH CALCULATION ==============\n";  
+  cout << "==============================================\n\n";
   int column = 0;                                                           
   double kkp = 0.0;                                                         
   kp_ant = k[0];                                                            
@@ -53,25 +56,25 @@ void TightBinding::PathCalc()
       FullPath(column) = kkp;                                               
       kp += step;                                                           
       column += 1;                                                          
+      cout << j << ' ';
     }                                                                       
+    cout << endl;
     kp_ant = kk[i];                                                         
-  }                                                                         
-                                                                            
+  }
+  cout << "==============================================\n\n";
+
   // Imprime Estrutura de Bandas                                           
   ofstream OutBand;
   OutBand.open("Bands.dat");
 
-  cout << "==============================================\n\n";
-  cout << "============= KPATH CALCULATION ==============\n";
-  cout << "==============================================\n\n";
   for(int i = 0; i < nOrbitals; i++)                                        
   {                                                                         
     for(int j = 0; j < kpoints; j++)                                        
     {                                                                       
-      OutBand << FullPath(j) << "\t\t" << BandStructure.col(j)(i) << endl;     
+      OutBand << format("{: 6.4f}\t{: 8.4f}\n", FullPath(j), BandStructure.col(j)(i));
     }                                                                       
       OutBand << endl;                                                           
-  }                                                                        
+  }                        
   OutBand.close();
 }                                                                           
                                                                             

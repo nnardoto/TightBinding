@@ -24,7 +24,7 @@ class TightBinding
     // Used for indexing matrieces and vectors
     int **Map;
     int **aIndex;
-    double UThr = 1.0E-13;   
+    double UThr = 1.0E-12;   
 
 
     // Used for iterations

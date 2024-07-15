@@ -16,8 +16,21 @@ void TightBinding::Load(string FileName)
   }
   else if(IFormat == "Wannier90")
   {
+    cout << "==============================================\n";     
+    cout << "=============== Wannier90 MODE ===============\n";     
+    cout << "==============================================\n\n";   
     W90_Load();
   }
+
+  // Carrega parametros de rede
+  R.load(InputDict["CellFile"]);
+  
+  // Carrega Posições Atômicas
+  nAtoms = stoi(InputDict["nAtoms"]);
+  rAtoms = arma::mat(nAtoms, 3, arma::fill::zeros);
+  rAtoms.load(InputDict["AtomsFile"]);
+
+  //TODO Preciso identificar os átomos para qualquer caso; Mudar input
 }
 
 
@@ -97,7 +110,7 @@ void TightBinding::W90_Load()
   for(int h = 0; h < 3; h++)
   {
     getline(w90File, Line);
-    R[h] = arma::vec(Line);
+    R.row(h) = arma::vec(Line);
   }
  
   w90File >> nOrbitals;

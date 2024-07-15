@@ -11,19 +11,23 @@ using namespace std;
 class TightBinding
 {
   public:
+    TightBinding();
     void PathCalc();
     void Export2Xatu();
     void Load(string FileName);
+    void Symmetrize();
     map<string, string> Parser(string FileName);
     arma::cx_mat GetH(double k1, double k2, double k3);
 
   private:
-    arma::vec K[3];
-    arma::vec R[3];
+    arma::mat K;
+    arma::mat R;
+    arma::mat rAtoms;
 
     // Used for indexing matrieces and vectors
     int **Map;
     int **aIndex;
+    int *AtomsOrb;
     double UThr = 1.0E-12;   
 
 
@@ -32,6 +36,7 @@ class TightBinding
     int FockNumber       = 0;
     int NeighborsCells   = 0;
     int nOrbitals        = 0;
+    int nAtoms           = 0;
     int WanN             = 0;
     bool OrthogonalBasis = true;
 
@@ -55,5 +60,11 @@ class TightBinding
     void WF_LoadFock();
     arma::vec    BandCalc(double k1, double k2, double k3);
     arma::vec WF_BandCalc(double k1, double k2, double k3);
-};
+   
 
+    // Functions for Symmetrization of Hamiltonian
+    void SuperCell(int Neighbors);
+    arma::mat BuildNeighborn(arma::vec Rn);
+    arma::mat RotC3();
+    arma::vec CatchCell(arma::vec aRn);
+};

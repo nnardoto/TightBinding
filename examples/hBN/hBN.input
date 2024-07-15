@@ -2,7 +2,7 @@
 ###                  TightBinding.x input example               ###
 ###################################################################
 IFormat            openmx
-natoms             2
+nAtoms             2
 nOrbitals          8
 NeighborsCells     3
 Dimensions         2

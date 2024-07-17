@@ -16,6 +16,7 @@ class TightBinding
     void Export2Xatu();
     void Load(string FileName);
     void Symmetrize();
+    void SymmetrizeC3();
     map<string, string> Parser(string FileName);
     arma::cx_mat GetH(double k1, double k2, double k3);
 

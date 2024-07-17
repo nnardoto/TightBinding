@@ -50,7 +50,7 @@ void TightBinding::PathCalc()
     arma::vec kp = kp_ant;                                                  
                                                                             
     for(int j = 0; j < N[i]; j++)                                           
-    {                                                                       
+    { 
       BandStructure.col(column) = BandCalc(kp(0), kp(1), kp(2));         
       kkp += norm(step);                                                    
       FullPath(column) = kkp;                                               

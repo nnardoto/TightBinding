@@ -18,7 +18,7 @@ void TightBinding::Export2Xatu()
   XatuModel << Dimensions << endl;
 
   XatuModel << "# norbitals" << endl;
-  XatuModel << "13 13" << endl;
+  XatuModel << format("{} {}", nOrbitals, nOrbitals) << endl;
   
   XatuModel << "# bravaislattice" << endl;
   for(int i = 0; i < Dimensions; i++)
@@ -29,17 +29,19 @@ void TightBinding::Export2Xatu()
   XatuModel << "# motif" << endl;
   for(int i = 0; i < 2; i++)
   {
-    XatuModel << std::format("{: 11.8f}    {: 11.8f}    {: 11.8f}    {: 11.8f}\n", Atoms.row(i)(0), Atoms.row(i)(1), Atoms.row(i)(2), Atoms.row(i)(3));
+    //TODO PADRONIZAR O INPTU
+    XatuModel << std::format("{: 11.8f}    {: 11.8f}    {: 11.8f}\n", Atoms.row(i)(0), Atoms.row(i)(1), Atoms.row(i)(2));
   }
 
   XatuModel << "# bravaisvectors" << endl;
   for(int i = 0; i < FockNumber; i++)
   {
     arma::vec A(3);
+    newR = arma::vec(3, arma::fill::zeros);
     A(0) = aIndex[i][0];
     A(1) = aIndex[i][1];
     A(2) = aIndex[i][2];
-    newR = R * A;
+    newR = R.row(0).t()*A(0) + R.row(1).t()*A(1) + R.row(2).t()*A(2);
     XatuModel << std::format("{: 11.8f}    {: 11.8f}    {: 11.8f}\n", newR(0), newR(1), newR(2));
   }
 
@@ -60,7 +62,7 @@ void TightBinding::Export2Xatu()
     {  
       for(int j = 0; j < nOrbitals; j++)
       {
-      XatuModel << std::format("{: 9.6f} {: 9.6f}j    ", 27.2114*FockMatrices[HH](i,j).real(), 27.2114*FockMatrices[HH](i,j).imag());
+        XatuModel << std::format("{: 9.6f} {: 9.6f}j    ", 27.2114*FockMatrices[HH](i,j).real(), 27.2114*FockMatrices[HH](i,j).imag());
       }
       XatuModel << endl; 
     } 
@@ -75,7 +77,7 @@ void TightBinding::Export2Xatu()
     {                                                                                                   
       for(int j = 0; j < nOrbitals; j++)                                                                
       {                                                                                                 
-      XatuModel << std::format("{: 11.7f} {: 11.7f}j    ", Overlap[SS](i,j).real(), Overlap[SS](i,j).imag());  
+        XatuModel << std::format("{: 11.7f} {: 11.7f}j    ", Overlap[SS](i,j).real(), Overlap[SS](i,j).imag());  
       }                                                                                                 
       XatuModel << endl;                                                                                     
     }                                                                                                   

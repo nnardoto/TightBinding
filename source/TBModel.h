@@ -65,6 +65,6 @@ class TightBinding
     // Functions for Symmetrization of Hamiltonian
     void SuperCell(int Neighbors);
     arma::mat BuildNeighborn(arma::vec Rn);
-    arma::mat RotC3();
+    arma::mat RotCn(int N);
     arma::vec CatchCell(arma::vec aRn);
 };

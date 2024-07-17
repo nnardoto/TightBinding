@@ -3,25 +3,52 @@
 void TightBinding::Symmetrize()
 {
   cout << ">> Begining Symmetrization Process\n";
-  arma::vec Rn = arma::vec(3, arma::fill::zeros);
+  arma::vec Rn  = arma::vec(3, arma::fill::zeros);
+  arma::vec dRn = arma::vec(3, arma::fill::zeros);
+  arma::vec R0  = arma::vec(3, arma::fill::zeros);
   arma::mat ARn;
-  
-  SuperCell(2);
+  arma::cx_mat Buffer = arma::cx_mat(nOrbitals, nOrbitals, arma::fill::zeros);
+  arma::mat C3  = RotCn(3).t();
+ 
+ int nOrb[2] = {4, 4};
+ int iOrb[2] = {0, 4};
 
-  Rn(0) = 1;
-  Rn(1) = 0;
-  Rn(2) = 0;
 
-  
-  ARn = BuildNeighborn(Rn);
-  cout << ARn.clean(1E-1);
-  cout << "==================================\n";
+  SuperCell(3);
 
-  ARn = ARn*RotC3().t();
-  cout << ARn.clean(1E-1);
-  cout << "==================================\n";
-  ARn = ARn*RotC3().t();
-  cout << ARn.clean(1E-1);
+  int l, m, n;
+  for(int ii = -3; ii <= 3; ii++)
+  {
+    for(int jj = -3; jj <= 3; jj++)
+    {
+      R0(0) = ii;
+      R0(1) = jj;
+      R0(2) =  0; 
+      if(Index(ii, jj, 0) > 0)
+      {
+        for(int i = 0; i < nAtoms; i++)
+        {
+          Rn = R0;
+          for(int j = 0; j < 3; j++)
+          {
+            ARn = BuildNeighborn(Rn);
+            l = Rn(0); m = Rn(1); n = Rn(2);
+            for(int k = 0; k < nAtoms; k++)
+            {
+              cout << format("{: d} {: d} --> {: d} {: d}     Line:{}-{}      Colunm:{}-{}\n", ii, jj, l, m, iOrb[k], iOrb[k] + nOrb[k] - 1, iOrb[i], iOrb[i] + nOrb[i] - 1);
+             // Buffer.submat(iOrb[i], iOrb[k], iOrb[i] + nOrb[i] - 1, iOrb[k] + nOrb[k] - 1) = 
+             // Buffer.submat(iOrb[i], iOrb[k], iOrb[i] + nOrb[i] - 1, iOrb[k] + nOrb[k] - 1) + 
+             //  FockMatrices[Index(R0(0), R0(1), R0(2))].submat(iOrb[i], iOrb[k], iOrb[i] + nOrb[i] - 1, iOrb[k] + nOrb[k] - 1);
+            }
+            ARn = ARn*C3;
+            ARn.clean(1E-1);
+            Rn  = CatchCell(ARn.row(1).t() - rAtoms.row(1).t());
+         
+          }
+        }
+      }
+    }
+  }
 }
 
 arma::mat TightBinding::BuildNeighborn(arma::vec Rn)
@@ -52,15 +79,15 @@ arma::vec TightBinding::CatchCell(arma::vec aRn)
   return arma::round(Rn);
 }
 
-arma::mat TightBinding::RotC3()
+arma::mat TightBinding::RotCn(int N)
 {
-  double Angle = 2*PI/3;
-  arma::mat RotC3 = arma::mat(3, 3);
-  RotC3 = {{cos(Angle), -sin(Angle), 0},
+  double Angle = 2*PI/N;
+  arma::mat RotCn = arma::mat(3, 3);
+  RotCn = {{cos(Angle), -sin(Angle), 0},
            {sin(Angle),  cos(Angle), 0},
            {         0,           0, 1}};
 
-  return RotC3;
+  return RotCn;
 }
 
 void TightBinding::SuperCell(int N)
@@ -74,7 +101,7 @@ void TightBinding::SuperCell(int N)
   {
     for(int j = -N; j <= N; j++)
     {
-      ARn = BuildNeighborn({i, j, 0});
+      ARn = BuildNeighborn({(double) i, (double)j, (double)0});
       oFile << "B\t" << ARn.row(0);
       oFile << "N\t" << ARn.row(1);
     }

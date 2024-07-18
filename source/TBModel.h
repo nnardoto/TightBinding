@@ -67,5 +67,6 @@ class TightBinding
     void SuperCell(int Neighbors);
     arma::mat BuildNeighborn(arma::vec Rn);
     arma::mat RotCn(int N);
+    arma::mat OrbCn(int N);
     arma::vec CatchCell(arma::vec aRn);
 };

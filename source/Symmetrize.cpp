@@ -68,7 +68,10 @@ void TightBinding::SymmetrizeC3()
   arma::vec R0  = arma::vec(3, arma::fill::zeros); 
   arma::vec Rc  = arma::vec(3, arma::fill::zeros); 
   arma::cx_mat buffer = arma::cx_mat(nOrbitals, nOrbitals, arma::fill::zeros);
-  arma::cxmat SymFock[35];
+  arma::cx_mat H = arma::cx_mat(nOrbitals, nOrbitals, arma::fill::zeros);
+  arma::cx_mat S = arma::cx_mat(nOrbitals, nOrbitals, arma::fill::zeros);
+  arma::cx_mat I = arma::cx_mat(nOrbitals, nOrbitals, arma::fill::eye);
+  arma::cx_mat SymFock[FockNumber];
   arma::mat ARn;                                   
   arma::mat C3  = RotCn(3).t();                    
   Rc = R.row(1).t()/2.0;                           
@@ -78,12 +81,20 @@ void TightBinding::SymmetrizeC3()
 
   int ToChange[3][3];
 
+
+  // inicializa matrizes "simetrizadas" com zeros
+  for(int i = 0; i < FockNumber; i++)
+  {
+    SymFock[i]  = FockMatrices[i]; 
+  }
+
   int n = 0;
   for(int l = -1; l <= 1; l++)
   {
     for(int m = -1; m < 1; m++)
     {
-      Rn = {(double)l, (double)m, (double)n};
+      R0 = {(double)l, (double)m, (double)n};
+      Rn = R0;
       ARn = BuildNeighborn(Rn);
 
       for(int atom = 1; atom < 2; atom++)
@@ -95,17 +106,18 @@ void TightBinding::SymmetrizeC3()
           int nn = Rn(2); 
 
           cout << format("{} {} {} --> {} {} {}\n", l, m, n, ll, mm, nn);
-          cout << "====================================================\n"; 
-          cout << real(FockMatrices[Index( l,  m, 0)].submat(iOrb[atom], iOrb[atom], arma::size(nOrb[atom], nOrb[atom])));
-          cout << "----------------------------------------------------\n"; 
-          cout << real(FockMatrices[Index(ll, mm, 0)].submat(iOrb[atom], iOrb[atom], arma::size(nOrb[atom], nOrb[atom])));
-          cout << "====================================================\n"; 
           
-         // buffer.submat(iOrb[atom], iOrb[atom], arma::size(nOrb[atom], nOrb[atom]))
-         // += FockMatrices[Index(ll, mm, 0)].submat(iOrb[atom], iOrb[atom], arma::size(nOrb[atom], nOrb[atom]))/3.0;
+          cout << "====================================================\n";
           
-         // ToChange[k][0] = ll; ToChange[k][1] = mm; ToChange[k][2] = nn;
+          arma::SizeMat Size = arma::size(nOrb[0], nOrb[atom]);
+          int atom1 = iOrb[0];
+          int atom2 = iOrb[atom];
 
+          cout << OrbCn(3)*real(SymFock[Index( l,  m,  n)].submat(atom1, atom2, Size)*OrbCn(3).t());
+          cout << "----------------------------------------------------\n"; 
+          cout << real(SymFock[Index(ll, mm, nn)].submat(iOrb[0], iOrb[atom], arma::size(nOrb[0], nOrb[atom])));
+          cout << "====================================================\n"; 
+          
           ARn = ARn * C3;                                      
           ARn.clean(1E-1);                                     
           Rn  = CatchCell(ARn.row(1).t() - rAtoms.row(1).t()); 
@@ -154,6 +166,19 @@ arma::mat TightBinding::RotCn(int N)
            {         0,           0, 1}};
 
   return RotCn;
+}
+
+arma::mat TightBinding::OrbCn(int N)
+{
+  double Angle = 2*PI/N;
+
+  arma::mat OrbCn = arma::mat(4, 4);
+  OrbCn = { {1,          0,           0, 0},
+            {0, cos(Angle), -sin(Angle), 0},
+            {0, sin(Angle),  cos(Angle), 0},
+            {0,          0,           0, 1}};
+
+  return OrbCn;
 }
 
 void TightBinding::SuperCell(int N)

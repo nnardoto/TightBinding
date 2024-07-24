@@ -64,9 +64,9 @@ arma::vec TightBinding::BandCalc(double k1, double k2, double k3)
   }
                                                                                                                              
                                                                                                                              
-  H.clean(UThr);       
-  H *= 27.2;
-  H.clean(UThr);
+//  H.clean(UThr);       
+//  H *= 27.2;
+//  H.clean(UThr);
 
   if(OrthogonalBasis)
   {
@@ -76,7 +76,7 @@ arma::vec TightBinding::BandCalc(double k1, double k2, double k3)
   {
     //cout << format("{} {} {}\n", k1, k2, k3);
     S      = arma::inv(arma::sqrtmat(S));
-    S.clean(UThr);
+//    S.clean(UThr);
     EigVal = arma::eig_sym(S*H*S);                                                                                             
   }
   

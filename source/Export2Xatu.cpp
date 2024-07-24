@@ -30,7 +30,7 @@ void TightBinding::Export2Xatu()
   for(int i = 0; i < 2; i++)
   {
     //TODO PADRONIZAR O INPTU
-    XatuModel << std::format("{: 11.8f}    {: 11.8f}    {: 11.8f}\n", Atoms.row(i)(0), Atoms.row(i)(1), Atoms.row(i)(2));
+    XatuModel << std::format("{: 11.8f}    {: 11.8f}    {: 11.8f} {: 5.4f}\n", Atoms.row(i)(0), Atoms.row(i)(1), Atoms.row(i)(2), float(i));
   }
 
   XatuModel << "# bravaisvectors" << endl;
@@ -62,7 +62,7 @@ void TightBinding::Export2Xatu()
     {  
       for(int j = 0; j < nOrbitals; j++)
       {
-        XatuModel << std::format("{: 9.6f} {: 9.6f}j    ", 27.2114*FockMatrices[HH](i,j).real(), 27.2114*FockMatrices[HH](i,j).imag());
+        XatuModel << std::format("{: 9.6f} {: 9.6f}j    ", FockMatrices[HH](i,j).real(), FockMatrices[HH](i,j).imag());
       }
       XatuModel << endl; 
     } 

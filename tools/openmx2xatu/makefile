@@ -12,14 +12,17 @@
 #####################################################################################
 CC = gcc -std=c99 -fcommon
 
-openmx2xatu.x: openmx2xatu.o read_scfout.o
-	$(CC) read_scfout.o openmx2xatu.o -o openmx2xatu.x
+openmx2xatu.x: openmx2xatu.o read_scfout.o indexing.o
+	$(CC) read_scfout.o indexing.o openmx2xatu.o -o openmx2xatu.x -lm
 
-openmx2xatu.o: openmx2xatu.c
-	$(CC) -c openmx2xatu.c -o openmx2xatu.o
+openmx2xatu.o: openmx2xatu.c indexing.o
+	$(CC) -c openmx2xatu.c -o openmx2xatu.o -lm
 
 read_scfout.o: read_scfout.c read_scfout.h 
 	$(CC) -c read_scfout.c -o read_scfout.o
+
+indexing.o: indexing.h indexing.c
+	$(CC) -c indexing.c -o indexing.o -lm
 
 clean:
 	rm openmx2xatu.x *.o
